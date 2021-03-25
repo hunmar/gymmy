@@ -1,0 +1,11 @@
+node_modules/
+
+# Created by https://www.toptal.com/developers/gitignore/api/firebase
+# Edit at https://www.toptal.com/developers/gitignore?templates=firebase
+
+### Firebase Patch ###
+.runtimeconfig.json
+.firebase/
+firestore-keyfile.json
+
+# End of https://www.toptal.com/developers/gitignore/api/firebase
