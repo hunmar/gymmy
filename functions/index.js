@@ -66,7 +66,7 @@ const superWizard = new Scenes.WizardScene(
     async (ctx) => {
       ctx.wizard.state.contactData.phone = ctx.message.text;
 
-      console.log('KEEEKEKEKE', ctx.wizard.state)
+      console.log("KEEEKEKEKE", ctx.wizard.state);
 
       await db.collection("users")
           .doc(String(ctx.update.message.from.id))
@@ -153,7 +153,7 @@ bot.catch((err, ctx) => {
 // bot.on("message", (ctx) => ctx.telegram.sendCopy(ctx.chat.id, ctx.message));
 
 // handle all telegram updates with HTTPs trigger
-exports[FUNCTION_TARGET] = functions.https.onRequest(
+exports[FUNCTION_TARGET] = functions.region(REGION).https.onRequest(
     async (request, response) => {
       functions.logger.log("Incoming message", request.body);
       try {
