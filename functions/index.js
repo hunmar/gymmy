@@ -59,7 +59,7 @@ const superWizard = new Scenes.WizardScene(
         return;
       }
       ctx.wizard.state.contactData.name = ctx.message.text;
-      ctx.reply(`О, привет, ${ctx.wizard.state.contactData.fio}`);
+      ctx.reply(`О, привет, ${ctx.wizard.state.contactData.name}`);
       ctx.reply("А теперь дай я у тебя стрельну телефончик");
       return ctx.wizard.next();
     },
