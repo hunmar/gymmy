@@ -10,7 +10,10 @@ const {
   REGION = "europe-west1",
   NODE_ENV,
 } = process.env;
-const BOT_TOKEN = functions.config().telegram.token;
+const BOT_TOKEN =
+  NODE_ENV !== "production" ?
+    functions.config().telegram.token.development :
+    functions.config().telegram.token.production;
 
 const db = new Firestore({
   projectId: "gymmy-903a8",
@@ -18,7 +21,7 @@ const db = new Firestore({
 });
 
 const stepHandler = new Composer();
-
+ 
 stepHandler.action("sure", async (ctx) => {
   console.log("sure");
   await ctx.reply(
@@ -68,7 +71,8 @@ const superWizard = new Scenes.WizardScene(
 
       console.log("KEEEKEKEKE", ctx.wizard.state);
 
-      await db.collection("users")
+      await db
+          .collection("users")
           .doc(String(ctx.update.message.from.id))
           .set({
             name: ctx.wizard.state.contactData.name,
@@ -126,19 +130,36 @@ bot.command("start", (ctx) => {
 //     `https://cloudfunctions.net/${FUNCTION_NAME}`,
 // );
 
-console.log("STARTED");
+let webHookUrl;
 
-let webHookUrl = `https://9482bc9ee057.ngrok.io/${GCLOUD_PROJECT}/${REGION}/${FUNCTION_TARGET}`;
+if (NODE_ENV !== "production") {
+  const localtunnel = require("localtunnel");
+  (async () => {
+    const tunnel = await localtunnel({port: 5001});
+    const tunnelUrl = tunnel.url;
 
-if (NODE_ENV === "production") {
+    console.log("TEEEST", tunnel.url);
+    console.log("STARTED");
+
+    webHookUrl = `${tunnelUrl}/${GCLOUD_PROJECT}/${REGION}/${FUNCTION_TARGET}`;
+
+    console.log(webHookUrl);
+
+    bot.telegram.setWebhook(webHookUrl);
+
+    console.log(webHookUrl); 
+  })();
+} else {
+  console.log("STARTED");
+
   webHookUrl = `https://${REGION}-${GCLOUD_PROJECT}.cloudfunctions.net/${FUNCTION_TARGET}`;
+
+  console.log(webHookUrl);
+
+  bot.telegram.setWebhook(webHookUrl);
+
+  console.log(webHookUrl);
 }
-
-console.log(webHookUrl);
-
-bot.telegram.setWebhook(webHookUrl);
-
-console.log(webHookUrl);
 
 // error handling
 bot.catch((err, ctx) => {
@@ -153,13 +174,13 @@ bot.catch((err, ctx) => {
 // bot.on("message", (ctx) => ctx.telegram.sendCopy(ctx.chat.id, ctx.message));
 
 // handle all telegram updates with HTTPs trigger
-exports[FUNCTION_TARGET] = functions.region(REGION).https.onRequest(
-    async (request, response) => {
+exports[FUNCTION_TARGET] = functions
+    .region(REGION)
+    .https.onRequest(async (request, response) => {
       functions.logger.log("Incoming message", request.body);
       try {
         await bot.handleUpdate(request.body);
       } finally {
         response.status(200).end();
       }
-    },
-);
+    });
