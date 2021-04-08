@@ -43,23 +43,23 @@ stepHandler.action("wat", async (ctx) => {
 
 const superWizard = new Scenes.WizardScene(
     "beginning",
-    async (ctx) => {
+    (ctx) => {
       ctx.wizard.state.contactData = {};
       console.log("KWK", ctx.wizard.state);
 
-      await ctx.reply(
+      ctx.reply(
           "Привет! Я Сашин бот. Я тебя ещё не знаю. Представься, пожалуйтса",
       );
       console.log("1");
       return ctx.wizard.next();
     },
-    (ctx) => {
+    async (ctx) => {
       if (ctx.message.text.length < 2) {
         ctx.reply("Please enter name for real");
         return;
       }
       ctx.wizard.state.contactData.name = ctx.message.text;
-      ctx.reply(`О, привет, ${ctx.wizard.state.contactData.name}`);
+      await ctx.reply(`О, привет, ${ctx.wizard.state.contactData.name}`);
       ctx.reply("А теперь дай я у тебя стрельну телефончик");
       return ctx.wizard.next();
     },
@@ -81,7 +81,7 @@ const superWizard = new Scenes.WizardScene(
             console.error("Error writing document: ", error);
           });
       ctx.reply("Спасибо, записал и взял на тебя кредит!");
-      await ctx.reply(
+      ctx.reply(
           "Что хочешь делать дальше?",
           Markup.inlineKeyboard([
             Markup.button.url("Качаться!", "https://t.me/rezalut7"),
@@ -89,7 +89,7 @@ const superWizard = new Scenes.WizardScene(
       );
       // await mySendContactDataMomentBeforeErase(ctx.wizard.state.contactData);
       // return ctx.scene.leave();
-      return ctx.wizard.next();
+      return await ctx.scene.leave();
     },
     stepHandler,
     async (ctx) => {
